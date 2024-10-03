@@ -1,34 +1,50 @@
 #!/usr/bin/python3
-#Author : Evans Adu
+# Author: Evans Adu
 
 """
 Factorize numbers in a file into a product of two prime numbers
 """
 import sys
 
+def is_prime(n):
+    """ Check if a number is prime """
+    if n < 2:
+        return False
+    for i in range(2, int(n ** 0.5) + 1):
+        if n % i == 0:
+            return False
+    return True
 
 def factorize():
     """
-    A function to search file and factorize the given set of numbers into two prime numbers (format n = p*q)
+    A function to search a file and factorize the given set of numbers into two prime numbers (format n = p*q)
     """
+    if len(sys.argv) != 2:
+        print("Usage: {} <file>".format(sys.argv[0]))
+        return
+
     try:
         file = sys.argv[1]
         with open(file) as f:
-            for line_number in f:
-                line_number = int(line_number)
-                if line_number % 2 == 0:
-                        print("{}={}*{}".format(line_number, line_number // 2, 2))
-                        continue
-                i = 3
-                while i < line_number // 2:
-                    if line_number % i == 0:
-                        print("{}={}*{}".format(line_number, line_number // i, i))
-                        break
-                    i = i + 2
-                if i == (line_number // 2) + 1:
-                    print("{}={}*{}".format(line_number, line_number, 1))
-    except (IndexError):
-        pass
+            for line in f:
+                line = line.strip()
+                line_number = int(line)
 
+                for i in range(2, line_number // 2 + 1):
+                    if line_number % i == 0 and is_prime(i):
+                        other_factor = line_number // i
+                        if is_prime(other_factor):
+                            print("{}={}*{}".format(line_number, i, other_factor))
+                            break
+                else:
+                    print("{} cannot be factorized into two prime numbers".format(line_number))
 
-factorize()
+    except FileNotFoundError:
+        print("File not found: {}".format(sys.argv[1]))
+    except ValueError:
+        print("Invalid number in file: {}".format(line))
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
+    factorize()

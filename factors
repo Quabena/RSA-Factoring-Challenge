@@ -1,37 +1,34 @@
 #!/usr/bin/python3
-import sys
-import math
+""" Author : Evans Adu """
 
-def factorize(n):
-    """Find two factors of n."""
-    for i in range(2, int(n**0.5) + 1):
-        if n % i == 0:
-            return i, n // i
-    return None, None
+""" Factorize given set of numbers in a file to product of two small numbers """
+from sys import argv
 
-def main():
-    if len(sys.argv) != 2:
-        print("Usage: factors <file>")
+def factorize(num):
+    """ Find two small numbers that multiply to give a given number """
+    if num < 2:
         return
-    
-    # Read the file from the command line argument
-    file_name = sys.argv[1]
-    
-    try:
-        with open(file_name, 'r') as file:
-            for line in file:
-                number = int(line.strip())
-                p, q = factorize(number)
-                if p and q:
-                    print(f"{number} = {p} * {q}")
-                else:
-                    print(f"Could not factor {number}")
-    
-    except FileNotFoundError:
-        print(f"File {file_name} not found.")
-    except ValueError:
-        print("File contains invalid data.")
-        
-if __name__ == "__main__":
-    main()
 
+    for i in range(2, num + 1):
+        if num % i == 0:
+            factor1 = i
+            factor2 = num // i
+            print(f"{num}={factor1}*{factor2}")
+            return  # Exit after finding the first factorization
+
+if __name__ == "__main__":
+    if len(argv) != 2:
+        print("Usage: factors <file>")
+        exit()
+
+    try:
+        with open(argv[1]) as file:
+            for line in file:
+                number_to_check = int(line.strip())  # Remove whitespace/newline
+                factorize(number_to_check)
+    except FileNotFoundError:
+        print("File not found.")
+    except ValueError:
+        print("Invalid number in file.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
