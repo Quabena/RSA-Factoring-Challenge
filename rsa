@@ -1,50 +1,49 @@
-#!/usr/bin/python3
-# Author: Evans Adu
+#!/usr/bin/env bash
+#RSA Factoring Challenge
 
-"""
-Factorize numbers in a file into a product of two prime numbers
-"""
-import sys
+check_factor()
+{
+	if [ $# -ne 3 ];
+        then
+                args=("$@")
+                count=0
+                num2=1
+                for a in ${args[*]};
+                do
+                        if [ $count -gt 1 ];
+                        then
+                                num2=$(echo $a*$num2 | bc)
+                        fi
+                        count=$((count + 1))
+                done
+        else
+                num2=$3
+        fi
 
-def is_prime(n):
-    """ Check if a number is prime """
-    if n < 2:
-        return False
-    for i in range(2, int(n ** 0.5) + 1):
-        if n % i == 0:
-            return False
-    return True
+        num1=$2
+        num=$(echo "$1" | tr ':' '=')
 
-def factorize():
-    """
-    A function to search a file and factorize the given set of numbers into two prime numbers (format n = p*q)
-    """
-    if len(sys.argv) != 2:
-        print("Usage: {} <file>".format(sys.argv[0]))
-        return
+        result=$(echo "if($num2 > $num1) 1 else 0" | bc)
+	        if ((result == 1)); then
+		        numcp=$num1
+		        num1=$num2
+		        num2=$numcp
+                fi
 
-    try:
-        file = sys.argv[1]
-        with open(file) as f:
-            for line in f:
-                line = line.strip()
-                line_number = int(line)
+        echo "$num$num1*$num2"
+}
 
-                for i in range(2, line_number // 2 + 1):
-                    if line_number % i == 0 and is_prime(i):
-                        other_factor = line_number // i
-                        if is_prime(other_factor):
-                            print("{}={}*{}".format(line_number, i, other_factor))
-                            break
-                else:
-                    print("{} cannot be factorized into two prime numbers".format(line_number))
+if [ $# -ne 1 ]
+then
+        echo 'Usage: rsa <file>'
+        exit 1
+else
 
-    except FileNotFoundError:
-        print("File not found: {}".format(sys.argv[1]))
-    except ValueError:
-        print("Invalid number in file: {}".format(line))
-    except Exception as e:
-        print(f"An error occurred: {e}")
+        while read i
+        do
 
-if __name__ == "__main__":
-    factorize()
+                result=$(factor "$i")
+                check_factor $result
+
+        done < "$1"
+fi
